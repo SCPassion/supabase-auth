@@ -6,30 +6,22 @@ import {
   type AuthError,
 } from "@supabase/supabase-js";
 
-export default function Signin() {
+export default function SignInOTP() {
   const [user, setUser] = React.useState<User | null>(null);
   const [error, setError] = React.useState<Error | null>(null);
 
-  async function signIn(email: string, password: string): Promise<void> {
-    const { data, error }: AuthResponse =
-      await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+  React.useEffect(() => {
+    const session = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_IN" && session?.user) {
+        setUser(session.user);
+        console.log("User signed in:", session.user);
+      }
+    });
 
-    if (error) {
-      console.error("Error signing in:", error);
-      setError(error);
-      return;
-    }
-
-    if (data.user) {
-      console.log("User signed in:", data.user);
-      setUser(data.user);
-    } else {
-      console.log("No user data returned");
-    }
-  }
+    return () => {
+      session.data.subscription.unsubscribe();
+    };
+  }, []);
 
   async function signOut(): Promise<void> {
     const { error }: { error: AuthError | null } =
@@ -44,18 +36,35 @@ export default function Signin() {
     console.log("User signed out");
   }
 
+  async function signInWithOTP(email: string) {
+    const { data, error }: AuthResponse = await supabase.auth.signInWithOtp({
+      email,
+    });
+
+    console.log("Data from signInWithOtp:", data);
+    if (error) {
+      console.error("Error signing in with OTP:", error);
+      setError(error);
+      return;
+    }
+    if (data.user) {
+      console.log("User signed in with OTP:", data.user);
+      setUser(data.user);
+    } else {
+      console.log("No user data returned");
+    }
+  }
+
   function submitAction(formData: FormData) {
     const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
 
-    if (!email || !password) {
-      setError(new Error("Email and password are required"));
+    if (!email) {
+      setError(new Error("Email is required"));
       return;
     }
 
-    signIn(email, password);
+    signInWithOTP(email);
   }
-
   return (
     <>
       {user ? (
@@ -70,19 +79,12 @@ export default function Signin() {
         </>
       ) : (
         <form action={submitAction}>
-          <h2 className="text-2xl font-bold">Sign In</h2>
+          <h2 className="text-2xl font-bold">Sign In With Magic Link</h2>
           <input
             type="email"
             placeholder="Email"
             name="email"
             aria-label="email"
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            name="password"
-            aria-label="password"
             required
           />
           {error && <p className="text-red-500">{error.message}</p>}
