@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Signup from "./components/Signup";
 import Signin from "./components/SignIn";
-import SignInOTP from "./components/SignInOTP";
+import SignInOTP from "./components/OTP/SignInOTP";
 function App() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 gap-4 text-center">

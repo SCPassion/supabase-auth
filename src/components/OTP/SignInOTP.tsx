@@ -1,11 +1,14 @@
 import React from "react";
-import { supabase } from "../supabase-client";
+import { supabase } from "../../supabase-client";
 import {
   type AuthResponse,
   type User,
   type AuthError,
   type PostgrestError,
 } from "@supabase/supabase-js";
+
+import LogOutButton from "./LogOutButton";
+import SignInForm from "./SignInForm";
 
 export default function SignInOTP() {
   const [user, setUser] = React.useState<User | null>(null);
@@ -106,29 +109,27 @@ export default function SignInOTP() {
       {user ? (
         <>
           <p className="text-green-500">Welcome back, {user.email}!</p>
-          <button
-            onClick={signOut}
-            className="cursor-pointer py-2 px-4 hover:bg-black hover:text-white rounded-full"
-          >
-            Sign Out Now
-          </button>
+          <LogOutButton signOut={signOut} />
         </>
       ) : (
-        <form action={submitAction}>
-          <h2 className="text-2xl font-bold">Sign In With Magic Link</h2>
-          <input
-            type="email"
-            placeholder="Email"
-            name="email"
-            aria-label="email"
-            required
-          />
-          {error && <p className="text-red-500">{error.message}</p>}
+        <>
+          {/* <form action={submitAction}>
+            <h2 className="text-2xl font-bold">Sign In With Magic Link</h2>
+            <input
+              type="email"
+              placeholder="Email"
+              name="email"
+              aria-label="email"
+              required
+            />
 
-          <button className="cursor-pointer py-2 px-4 hover:bg-black hover:text-white rounded-full">
-            Sign In Now
-          </button>
-        </form>
+            <button className="cursor-pointer py-2 px-4 hover:bg-black hover:text-white rounded-full">
+              Sign In Now
+            </button>
+          </form> */}
+          <SignInForm submitAction={submitAction} />
+          {error && <p className="text-red-500">{error.message}</p>}
+        </>
       )}
     </>
   );
