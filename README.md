@@ -52,3 +52,159 @@ export default tseslint.config({
   },
 })
 ```
+
+## Features Implemented
+
+### 1. Supabase Authentication with Email and Password
+- **Sign Up**: Users can sign up with their email and password.
+- **Sign In**: Users can log in using their email and password.
+
+#### Code Example:
+```tsx
+async function signUp(email: string, password: string): Promise<void> {
+  const { data, error }: AuthResponse = await supabase.auth.signUp({
+    email,
+    password,
+  });
+
+  if (error) {
+    console.error("Error signing up:", error);
+    return;
+  }
+
+  console.log("User signed up:", data.user);
+}
+
+async function signIn(email: string, password: string): Promise<void> {
+  const { data, error }: AuthResponse = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) {
+    console.error("Error signing in:", error);
+    return;
+  }
+
+  console.log("User signed in:", data.user);
+}
+```
+
+### 2. Supabase Authentication with OTP
+- Users can log in using a magic link sent to their email.
+
+#### Code Example:
+```tsx
+async function signInWithOTP(email: string): Promise<void> {
+  const { error }: AuthResponse = await supabase.auth.signInWithOtp({
+    email,
+  });
+
+  if (error) {
+    console.error("Error signing in with OTP:", error);
+    return;
+  }
+
+  console.log("OTP sent to email:", email);
+}
+```
+
+### 3. Shadcn Exercise
+- Implemented UI components using Shadcn, including tabs and switches.
+
+#### Code Example:
+```tsx
+function TabsList({ className, ...props }: React.ComponentProps<typeof TabsPrimitive.List>) {
+  return (
+    <TabsPrimitive.List
+      className={cn("bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-[3px] mx-auto", className)}
+      {...props}
+    />
+  );
+}
+```
+
+### 4. Dark Mode with Shadcn Switch
+- Added dark mode functionality using a toggle switch from Shadcn.
+- The dark mode state is synchronized with the `dark` class on the `<html>` element.
+
+#### Code Example:
+```tsx
+function App() {
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    return (
+      localStorage.theme === "dark" ||
+      (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches)
+    );
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add("dark");
+      localStorage.theme = "dark";
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.theme = "light";
+    }
+  }, [isDarkMode]);
+
+  return (
+    <Switch toggleDarkMode={setIsDarkMode} />
+  );
+}
+
+function Switch({ toggleDarkMode }: { toggleDarkMode: (isOn: boolean) => void }) {
+  return (
+    <SwitchPrimitive.Root
+      onCheckedChange={(checked) => toggleDarkMode(checked)}
+      className="peer data-[state=checked]:bg-primary data-[state=unchecked]:bg-input ..."
+    >
+      <SwitchPrimitive.Thumb className="bg-background dark:bg-foreground ..." />
+    </SwitchPrimitive.Root>
+  );
+}
+```
+
+### 5. Adding a New User Row to Supabase Table on Sign In
+- Automatically adds a new user row to the `sales` table in Supabase when a user signs in.
+- Ensures no duplicate rows are created by checking for existing entries.
+
+#### Code Example:
+```tsx
+async function createUserRowInTable(user: User) {
+  console.log("Checking if user exists in table:", user.email);
+
+  // Check if the user already exists in the table
+  const { data, error } = await supabase
+    .from("sales")
+    .select("email")
+    .eq("email", user.email);
+
+  if (error) {
+    console.error("Error checking user in table:", error);
+    return;
+  }
+
+  if (data && data.length > 0) {
+    console.log("User already exists in table:", data);
+    return;
+  }
+
+  // Insert user data into the sales table
+  const { error: insertError } = await supabase.from("sales").insert({
+    user_id: user.id,
+    created_at: new Date().toISOString(),
+    email: user.email,
+    plan: "free",
+    region: "hk",
+    revenue: 0,
+  });
+
+  if (insertError) {
+    console.error("Error inserting user data:", insertError);
+    return;
+  }
+
+  console.log("User data inserted into table:", user.email);
+}
+```
