@@ -12,8 +12,10 @@ import SignInForm from "./SignInForm";
 
 export default function SignInOTP() {
   const [user, setUser] = React.useState<User | null>(null);
+
   const [error, setError] = React.useState<Error | null>(null);
 
+  console.log("User:", user);
   //Purpose: Listens for authentication state changes (e.g., login, logout).
   //Steps:
   //When a user logs in (SIGNED_IN event), it sets the user in the user state
