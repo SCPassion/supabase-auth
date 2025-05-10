@@ -1,7 +1,6 @@
 import Tab from "./components/Tab";
 import { useState } from "react";
 import { Switch } from "@/components/ui/switch";
-import SignInOTP from "./components/OTP/SignInOTP";
 
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -25,8 +24,6 @@ function App() {
         <Switch toggleDarkMode={toggleDarkMode} />
       </div>
       <Tab />
-
-      <SignInOTP />
     </div>
   );
 }

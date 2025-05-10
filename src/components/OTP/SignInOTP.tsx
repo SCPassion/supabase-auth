@@ -15,18 +15,21 @@ export default function SignInOTP() {
 
   const [error, setError] = React.useState<Error | null>(null);
 
-  console.log("User:", user);
   //Purpose: Listens for authentication state changes (e.g., login, logout).
   //Steps:
   //When a user logs in (SIGNED_IN event), it sets the user in the user state
   //and calls createUserRowInTable to ensure the user's data is stored in the database.
   //The listener is cleaned up when the component unmounts to avoid memory leaks.
   React.useEffect(() => {
+    console.log("Listening for auth changes...");
     const session = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_IN" && session?.user) {
+      console.log("Auth session:", session?.user, event);
+      console.log("Auth event:", event);
+      if (session?.user) {
         console.log("User signed in:", session.user);
         setUser(session.user);
         createUserRowInTable(session.user);
+        console.log("User:", session.user);
       }
     });
 
