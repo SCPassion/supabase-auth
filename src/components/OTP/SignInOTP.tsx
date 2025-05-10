@@ -69,11 +69,10 @@ export default function SignInOTP() {
     console.log("User data inserted into table:", user.email);
   }
   async function signInWithOTP(email: string) {
-    const { data, error }: AuthResponse = await supabase.auth.signInWithOtp({
+    const { error }: AuthResponse = await supabase.auth.signInWithOtp({
       email,
     });
 
-    console.log("Data from signInWithOtp:", data);
     if (error) {
       console.error("Error signing in with OTP:", error);
       setError(error);
